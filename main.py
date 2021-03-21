@@ -151,7 +151,7 @@ INSERT
         
      db:triplifier_test_HN_Maastricht.pretreat_hb_in_mmolperlitre owl:equivalentClass roo:asaScore.
         
-     db:triplifier_test_HN_Maastricht.performance_status_ecog owl:equivalentClass roo:whostatus.
+     db:triplifier_test_HN_Maastricht.performance_status_ecog owl:equivalentClass ncit:C105721.
         
      db:triplifier_test_HN_Maastricht.clin_t owl:equivalentClass ncit:C48885.
      
@@ -159,7 +159,7 @@ INSERT
 
 	 db:triplifier_test_HN_Maastricht.clin_m owl:equivalentClass ncit:C48883.
         
-     db:triplifier_test_HN_Maastricht.ajcc_stage owl:equivalentClass roo:C100052.
+     db:triplifier_test_HN_Maastricht.ajcc_stage owl:equivalentClass ncit:C38027.
         
      db:triplifier_test_HN_Maastricht.cancer_surgery_performed owl:equivalentClass ncit:C17173.
       
@@ -185,7 +185,7 @@ INSERT
 
 	 db:triplifier_test_HN_Maastricht.overall_survival_in_days owl:equivalentClass roo:overallsurvivaldays.
         
-     db:triplifier_test_HN_Maastricht.chemotherapy_given owl:equivalentClass ncit:C94626.
+     db:triplifier_test_HN_Maastricht.chemotherapy_given owl:equivalentClass ncit:C15632.
     
      db:triplifier_test_HN_Maastricht.radiotherapy_total_treat_time owl:equivalentClass roo:rttotaldays.
     
@@ -193,7 +193,7 @@ INSERT
         
      db:triplifier_test_HN_Maastricht.radiotherapy_refgydose_perfraction_highriskgtv owl:equivalentClass roo:graydoseperfraction.
     
-     db:triplifier_test_HN_Maastricht.radiotherapy_number_fractions_highriskgtv owl:equivalentClass roo:rttotalfraction.
+    db:triplifier_test_HN_Maastricht.radiotherapy_number_fractions_highriskgtv owl:equivalentClass roo:rttotalfraction.
    
      db:triplifier_test_HN_Maastricht.years owl:equivalentClass ncit:C29848.
       
@@ -306,73 +306,138 @@ runQuery2(endpoint, query2)
 
 def addMapping(localTerm, targetClass, superClass):
     query = """
-        PREFIX owl: <http://www.w3.org/2002/07/owl#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-        INSERT {
-            GRAPH <http://annotation.local/> {
-                ?term owl:equivalentClass [
-                    rdf:type owl:Class;
-                    owl:intersectionOf [
-                        rdf:first ?superClass;
-                        rdf:rest [
-                            rdf:first [
-                                rdf:type owl:Class;
-                                owl:unionOf [
-                                    rdf:first [
-                                        rdf:type owl:Restriction;
-                                        owl:hasValue ?localValue;
-                                        owl:onProperty <http://um-cds/ontologies/databaseontology/has_value>;
-                                    ];
-                                    rdf:rest rdf:nil;
-                                ]
-                            ];
-                            rdf:rest rdf:nil;
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            INSERT {
+                GRAPH <http://annotation.local/> {
+                    ?term owl:equivalentClass [
+                        rdf:type owl:Class;
+                        owl:intersectionOf [
+                            rdf:first ?superClass;
+                            rdf:rest [
+                                rdf:first [
+                                    rdf:type owl:Class;
+                                    owl:unionOf [
+                                        rdf:first [
+                                            rdf:type owl:Restriction;
+                                            owl:hasValue ?localValue;
+                                            owl:onProperty <http://um-cds/ontologies/databaseontology/has_value>;
+                                        ];
+                                        rdf:rest rdf:nil;
+                                    ]
+                                ];
+                                rdf:rest rdf:nil;
+                            ]
                         ]
-                    ]
-                ].
-            }
-        } WHERE { 
-            BIND(<%s> AS ?term).
-            BIND(<%s> AS ?superClass).
-            BIND("%s"^^xsd:string AS ?localValue).
+                    ].
+                }
+            } WHERE { 
+                BIND(<%s> AS ?term).
+                BIND(<%s> AS ?superClass).
+                BIND("%s"^^xsd:string AS ?localValue).
 
-        }
-        """ % (targetClass, superClass, localTerm)
+            }
+            """ % (targetClass, superClass, localTerm)
 
     annotationResponse = requests.post(endpoint,
-    data="update="+query,
-    headers={
-        "Content-Type": "application/x-www-form-urlencoded"
-    })
+                                       data="update=" + query,
+                                       headers={
+                                           "Content-Type": "application/x-www-form-urlencoded"
+                                       })
     print(annotationResponse.status_code)
 
-#T stage
-addMapping("0", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48719", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
-addMapping("1", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48720", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
-addMapping("2", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48724", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
-addMapping("3", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48728", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
-addMapping("4", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48732", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
-#addMapping("T4b", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48732", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
+
+# T stage
+addMapping("0", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48719",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
+addMapping("1", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48720",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
+addMapping("2", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48724",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
+addMapping("3", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48728",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
+addMapping("4", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48732",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
+# addMapping("T4b", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48732", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48885")
 
 
-#N stage
-addMapping("0", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48705", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
-addMapping("1", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48706", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
-addMapping("2", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48786", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
-#addMapping("N2b", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48786", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
-#addMapping("N2c", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48786", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
-addMapping("3", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48714", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
+# N stage
+addMapping("0", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48705",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
+addMapping("1", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48706",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
+addMapping("2", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48786",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
+# addMapping("N2b", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48786", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
+# addMapping("N2c", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48786", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
+addMapping("3", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48714",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48884")
 
-#M stage
-addMapping("0", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48699", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48883")
-addMapping("1", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48700", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48883")
+# M stage
+addMapping("0", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48699",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48883")
+addMapping("1", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48700",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48883")
 
-#gender
-addMapping("female", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C16576", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C28421")
-addMapping("male", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C20197", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C28421")
+# gender
+addMapping("female", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C16576",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C28421")
+addMapping("male", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C20197",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C28421")
 
-#survival
-addMapping("0", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C28554", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25717")
-addMapping("1", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C37987", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25717")
+# survival
+addMapping("1", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C28554",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25717")
+addMapping("0", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C37987",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25717")
+# 0=alive
+# 1=dead
 
+# tumorlocation
+addMapping("oropharynx", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C12762",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C3263")
+addMapping("larynx", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C12420",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C3263")
+# addMapping("hypopharynx", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C12246", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C3263")
+# addMapping("nasopharynx", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C12423", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C3263")
+# addMapping("Base of tongue", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C12762", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C3263")
+# addMapping("Tonsil", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C12762", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C3263")
+# addMapping("Soft palate", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C12762", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C3263")
+# addMapping("Glossopharyngeal sulcus", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C12762", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C3263")
+
+# WHOstatus
+addMapping("0", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C105722",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C105721")
+addMapping("1", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C105723",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C105721")
+
+# hpv
+addMapping("positive", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C128839",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C14226")
+addMapping("negative", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C131488",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C14226")
+
+# ajcc
+addMapping("i", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C27966",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C38027")
+addMapping("ii", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C28054",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C38027")
+addMapping("iii", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C27970",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C38027")
+addMapping("iva", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C27971",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C38027")
+addMapping("ivb", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C27971",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C38027")
+addMapping("ivc", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C27971",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C38027")
+
+# chemo
+addMapping("concomitant", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C94626",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C15632")
+addMapping("none", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C15313",
+           "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C15632")
+# addMapping("chemo radiation", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C94626", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C15632")
+# addMapping("Concurrent chemoradiotherapy", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C94626", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C15632")
+# addMapping("Induction chemotherapy+Radiation alone", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C94626", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C15632")
+# addMapping("Induction chemotherapy + concurrent chemoradiotherapy", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C94626", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C15632")
